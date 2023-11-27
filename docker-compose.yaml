@@ -1,0 +1,46 @@
+version: '2.23'
+
+services:
+  
+  my_api:
+
+    build:
+      context: .
+      dockerfile: Dockerfile.2
+
+    expose:
+      - '8080'
+
+    deploy:
+      replicas: 4 
+
+    restart: always
+
+    environment:
+      - PING_LISTEN_PORT=8080
+
+    networks:
+      - front-network
+
+    volumes:
+      - db_data:/app/bdd.db
+
+  proxy:
+
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8080:8080
+    depends_on: 
+      - my_api
+    networks:
+      - front-network
+
+
+networks:
+  front-network:
+    driver: bridge
+
+volumes:
+  db_data:

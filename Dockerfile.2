@@ -1,0 +1,13 @@
+FROM rust:latest
+WORKDIR /script
+COPY . /script/
+ENV RUSTFLAGS="-C target-feature=+crt-static"
+RUN cargo build --release
+
+FROM alpine:latest
+WORKDIR /script
+RUN adduser user_system --system    
+COPY --from=0 /script /script/
+RUN chown -R user_system /script/target/release/tp
+USER user_system
+CMD /script/target/release/tp
